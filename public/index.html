@@ -23,12 +23,12 @@ body{font-family:'Jost',sans-serif;font-weight:300;font-size:16px;background:#F7
 .hs{text-align:right;}
 .hs-n{font-family:'EB Garamond',serif;font-size:22px;color:#8C6D3F;}
 .hs-l{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#A09890;}
-.main{flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
+.main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;touch-action:pan-y;}
 .page{display:none;padding:20px 16px;}
 .page.on{display:block;}
 .pg-title{font-family:'EB Garamond',serif;font-size:32px;font-style:italic;margin-bottom:20px;}
 .tabs{position:fixed;bottom:0;left:0;right:0;background:#F7F3EC;border-top:1px solid #E3DDD3;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:999;}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border:none;background:transparent;color:#C8C0B4;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border:none;background:transparent;color:#C8C0B4;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;touch-action:manipulation;}
 .tab.on{color:#1A1714;}
 .tab-ic{font-size:20px;margin-bottom:3px;line-height:1;}
 .up-box{border:1px solid #E3DDD3;padding:32px 16px;text-align:center;margin-bottom:20px;background:white;}
@@ -41,7 +41,7 @@ body{font-family:'Jost',sans-serif;font-weight:300;font-size:16px;background:#F7
 @keyframes spin{to{transform:rotate(360deg);}}
 .filters{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none;}
 .filters::-webkit-scrollbar{display:none;}
-.pill{flex-shrink:0;padding:7px 16px;border:1px solid #E3DDD3;background:transparent;font-family:'Jost',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:#A09890;cursor:pointer;}
+.pill{flex-shrink:0;padding:7px 16px;border:1px solid #E3DDD3;background:transparent;font-family:'Jost',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:#A09890;cursor:pointer;touch-action:manipulation;}
 .pill.on{background:#1A1714;color:#F7F3EC;border-color:#1A1714;}
 .sort-sel{flex-shrink:0;padding:6px 10px;background:white;border:1px solid #E3DDD3;font-family:'Jost',sans-serif;font-size:9px;color:#A09890;}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
@@ -56,12 +56,12 @@ body{font-family:'Jost',sans-serif;font-weight:300;font-size:16px;background:#F7
 .a-old{background:rgba(156,58,46,0.1);color:#9C3A2E;border:1px solid rgba(156,58,46,0.2);}
 .cat-tag{position:absolute;bottom:7px;left:7px;font-size:7px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;background:rgba(247,243,236,0.9);color:#46413B;border:1px solid rgba(200,192,180,0.4);}
 .c-acts{position:absolute;top:6px;right:6px;display:flex;gap:3px;}
-.act-btn{width:26px;height:26px;border-radius:50%;border:none;background:rgba(247,243,236,0.92);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.act-btn{width:26px;height:26px;border-radius:50%;border:none;background:rgba(247,243,236,0.92);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;}
 .bought-v{position:absolute;inset:0;background:rgba(247,243,236,0.55);display:flex;align-items:center;justify-content:center;pointer-events:none;}
 .bought-m{font-family:'EB Garamond',serif;font-style:italic;font-size:12px;letter-spacing:3px;color:#7A8C72;border:1px solid #7A8C72;padding:4px 10px;transform:rotate(-12deg);}
 .c-body{padding:12px;}
 .c-brand{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#8C6D3F;margin-bottom:3px;}
-.c-name{font-family:'EB Garamond',serif;font-size:26px;line-height:1.35;margin-bottom:5px;}
+.c-name{font-family:'EB Garamond',serif;font-size:20px;line-height:1.35;margin-bottom:5px;}
 .c-age{font-size:13px;color:#A09890;margin-bottom:4px;}
 .c-note{font-size:13px;color:#A09890;font-style:italic;margin-bottom:5px;line-height:1.5;}
 .c-foot{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid #F0EBE3;}
@@ -182,7 +182,7 @@ body{font-family:'Jost',sans-serif;font-weight:300;font-size:16px;background:#F7
 .al-status{font-size:10px;color:#A09890;margin-bottom:12px;}
 .sheet-bg{display:none;position:fixed;inset:0;background:rgba(26,23,20,0.4);z-index:400;align-items:flex-end;justify-content:center;}
 .sheet-bg.on{display:flex;}
-.sheet{background:#F7F3EC;width:100%;max-width:600px;padding:0 20px 0;border-radius:16px 16px 0 0;height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:sheetUp 0.35s ease both;padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));}
+.sheet{background:#F7F3EC;width:100%;max-width:600px;padding:0 20px 0;border-radius:16px 16px 0 0;height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;animation:sheetUp 0.35s ease both;padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));}
 @keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .sh-pull{width:32px;height:4px;background:#E3DDD3;border-radius:2px;margin:12px auto 18px;}
 .sh-title{font-family:'EB Garamond',serif;font-size:22px;font-style:italic;margin-bottom:20px;}
@@ -270,6 +270,10 @@ textarea.fi{min-height:60px;resize:none;}
       <button class="pill on" onclick="tSh(this,'29CM')">29CM</button>
       <button class="pill on" onclick="tSh(this,'W컨셉')">W컨셉</button>
       <button class="pill on" onclick="tSh(this,'에이블리')">에이블리</button>
+      <button class="pill on" onclick="tSh(this,'크림')">크림</button>
+      <button class="pill on" onclick="tSh(this,'EQL')">EQL</button>
+      <button class="pill on" onclick="tSh(this,'OK몰')">OK몰</button>
+      <button class="pill on" onclick="tSh(this,'네이버스마트스토어')">네이버스마트스토어</button>
       <button class="pill" onclick="tSh(this,'ZARA')">ZARA</button>
       <button class="pill" onclick="tSh(this,'H&M')">H&M</button>
       <button class="pill" onclick="tSh(this,'유니클로')">유니클로</button>
@@ -330,7 +334,7 @@ textarea.fi{min-height:60px;resize:none;}
 var API = '/api/analyze';
 var items = JSON.parse(localStorage.getItem('closet_v5') || '[]');
 var cFilter='all', cSort='newest', editId=null, hView='cal';
-var selShops=['무신사','29CM','W컨셉','에이블리'];
+var selShops=['무신사','29CM','W컨셉','에이블리','크림','EQL','OK몰','네이버스마트스토어'];
 var fImgData=null, charts={};
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
