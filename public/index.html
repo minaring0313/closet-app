@@ -413,10 +413,10 @@ async function analyzeImg(file){
           var searchData=await callAPI({
             model:'claude-sonnet-4-20250514', max_tokens:300,
             tools:[{type:'web_search_20250305',name:'web_search'}],
-            messages:[{role:'user',content:(it.brand?it.brand+' ':'')+it.name+' 상품 구매 링크. 실제 상품 페이지 URL만 반환.'}]
+            messages:[{role:'user',content:(it.brand?it.brand+' ':'')+it.name+' 구매 사이트 검색. 무신사 29CM W컨셉 에이블리 크림 EQL 네이버쇼핑 중 실제 상품 상세 페이지 URL을 찾아서 URL만 반환해줘. 홈페이지 말고 반드시 해당 상품 상세 페이지여야 해.'}]
           });
           var searchTxt=searchData.content.map(function(b){return b.text||'';}).join('');
-          var urlMatch=searchTxt.match(/https?:\/\/[^\s"')]+/);
+          var urlMatch=searchTxt.match(/https?:\/\/[^\s"')\]]+/);
           if(urlMatch) it.link=urlMatch[0];
         }catch(e){}
       }
@@ -564,7 +564,7 @@ async function runFinder(){
   var sh=selShops.join(', ')||'무신사, 29CM';
   var b64=fImgData.split(',')[1];
   try{
-    var data=await callAPI({model:'claude-sonnet-4-20250514',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'이 옷 이미지와 비슷한 스타일 상품을 웹에서 찾아주세요. 예산:'+fm(mn)+'~'+fm(mx)+'원, 쇼핑몰:'+sh+'. JSON만:\n{"styleDesc":"스타일설명","results":[{"brand":"","name":"","price":0,"shop":"","url":"","desc":"","similarity":"높음|중간|낮음"}]}'}]}]});
+    var data=await callAPI({model:'claude-sonnet-4-20250514',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'이 옷 이미지와 비슷한 스타일 상품을 웹에서 찾아주세요. 예산:'+fm(mn)+'~'+fm(mx)+'원, 쇼핑몰:'+sh+'. 반드시 실제 상품 상세 페이지 URL을 찾아야 해요. 쇼핑몰 홈페이지나 검색 결과 페이지 말고 상품 상세 페이지 URL이어야 해요. JSON만:\n{"styleDesc":"스타일설명","results":[{"brand":"","name":"","price":0,"shop":"","url":"실제상품상세페이지URL","desc":"","similarity":"높음|중간|낮음"}]}'}]}]});
     if(data.error)throw new Error(data.error.message);
     var txt=data.content.map(function(b){return b.text||'';}).join('');
     var p;try{p=JSON.parse(txt.trim());}catch(e){var m=txt.match(/\{[\s\S]*\}/);p=m?JSON.parse(m[0]):null;}
