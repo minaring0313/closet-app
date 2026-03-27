@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Closet">
+<meta name="theme-color" content="#F7F3EC">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-152.png">
+<title>Closet</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:'Jost',sans-serif;font-weight:300;background:#F7F3EC;color:#1A1714;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top,0px);}
+.hdr{background:#F7F3EC;border-bottom:1px solid #E3DDD3;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{font-family:'EB Garamond',serif;font-size:24px;letter-spacing:6px;}
+.logo-s{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:#A09890;margin-top:1px;}
+.hdr-r{display:flex;gap:16px;}
+.hs{text-align:right;}
+.hs-n{font-family:'EB Garamond',serif;font-size:17px;color:#8C6D3F;}
+.hs-l{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:#A09890;}
+.main{flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
+.page{display:none;padding:20px 16px;}
+.page.on{display:block;}
+.pg-title{font-family:'EB Garamond',serif;font-size:28px;font-style:italic;margin-bottom:20px;}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#F7F3EC;border-top:1px solid #E3DDD3;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:999;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;border:none;background:transparent;color:#C8C0B4;font-family:'Jost',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.tab.on{color:#1A1714;}
+.tab-ic{font-size:20px;margin-bottom:3px;line-height:1;}
+.up-box{border:1px solid #E3DDD3;padding:32px 16px;text-align:center;margin-bottom:20px;background:white;}
+.up-title{font-family:'EB Garamond',serif;font-size:20px;font-style:italic;margin-bottom:6px;}
+.up-sub{font-size:11px;color:#A09890;line-height:1.8;margin-bottom:16px;}
+.file-label{display:inline-block;padding:11px 28px;background:#1A1714;color:#F7F3EC;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+.analyzing{display:none;align-items:center;gap:10px;padding:12px 16px;background:#EDE8DF;border-left:2px solid #B08D5A;margin-bottom:16px;font-size:12px;color:#A09890;}
+.analyzing.on{display:flex;}
+.spin{width:14px;height:14px;border:1.5px solid #E3DDD3;border-top-color:#8C6D3F;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.filters{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none;}
+.filters::-webkit-scrollbar{display:none;}
+.pill{flex-shrink:0;padding:6px 14px;border:1px solid #E3DDD3;background:transparent;font-family:'Jost',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#A09890;cursor:pointer;}
+.pill.on{background:#1A1714;color:#F7F3EC;border-color:#1A1714;}
+.sort-sel{flex-shrink:0;padding:6px 10px;background:white;border:1px solid #E3DDD3;font-family:'Jost',sans-serif;font-size:9px;color:#A09890;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.card{background:white;border:1px solid #E3DDD3;overflow:hidden;animation:fadeUp 0.3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.c-img-w{height:150px;background:#EDE8DF;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.c-img{width:100%;height:100%;object-fit:cover;}
+.c-ph{font-size:32px;opacity:0.15;}
+.age-tag{position:absolute;top:7px;left:7px;font-size:7px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;font-family:'Jost',sans-serif;}
+.a-new{background:rgba(122,140,114,0.15);color:#7A8C72;border:1px solid rgba(122,140,114,0.3);}
+.a-mid{background:rgba(140,109,63,0.1);color:#8C6D3F;border:1px solid rgba(140,109,63,0.25);}
+.a-old{background:rgba(156,58,46,0.1);color:#9C3A2E;border:1px solid rgba(156,58,46,0.2);}
+.cat-tag{position:absolute;bottom:7px;left:7px;font-size:7px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;background:rgba(247,243,236,0.9);color:#46413B;border:1px solid rgba(200,192,180,0.4);}
+.c-acts{position:absolute;top:6px;right:6px;display:flex;gap:3px;}
+.act-btn{width:26px;height:26px;border-radius:50%;border:none;background:rgba(247,243,236,0.92);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.bought-v{position:absolute;inset:0;background:rgba(247,243,236,0.55);display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.bought-m{font-family:'EB Garamond',serif;font-style:italic;font-size:12px;letter-spacing:3px;color:#7A8C72;border:1px solid #7A8C72;padding:4px 10px;transform:rotate(-12deg);}
+.c-body{padding:12px;}
+.c-brand{font-size:7.5px;letter-spacing:2.5px;text-transform:uppercase;color:#8C6D3F;margin-bottom:3px;}
+.c-name{font-family:'EB Garamond',serif;font-size:15px;line-height:1.35;margin-bottom:5px;}
+.c-age{font-size:9px;color:#A09890;margin-bottom:4px;}
+.c-note{font-size:10px;color:#A09890;font-style:italic;margin-bottom:5px;line-height:1.5;}
+.c-foot{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid #F0EBE3;}
+.c-price{font-family:'EB Garamond',serif;font-size:17px;}
+.c-price.s{color:#9C3A2E;}
+.c-orig{font-size:9px;color:#C8C0B4;text-decoration:line-through;margin-left:4px;}
+.c-link{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#8C6D3F;text-decoration:none;border-bottom:1px solid rgba(140,109,63,0.3);padding-bottom:1px;}
+.total-bar{display:flex;justify-content:space-between;align-items:center;padding:16px;background:#1A1714;color:#F7F3EC;margin-top:20px;}
+.total-lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase;opacity:0.5;}
+.total-amt{font-family:'EB Garamond',serif;font-size:24px;color:#D4AF78;}
+.empty{text-align:center;padding:60px 20px;grid-column:1/-1;}
+.empty-g{font-family:'EB Garamond',serif;font-size:40px;color:#E3DDD3;margin-bottom:12px;font-style:italic;}
+.empty-t{font-family:'EB Garamond',serif;font-size:18px;color:#C8C0B4;font-style:italic;margin-bottom:6px;}
+.empty-s{font-size:11px;color:#C8C0B4;}
+.vpills{display:flex;gap:1px;background:#E3DDD3;padding:3px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;}
+.vpills::-webkit-scrollbar{display:none;}
+.vp{flex-shrink:0;padding:8px 14px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#A09890;border:none;background:transparent;font-family:'Jost',sans-serif;cursor:pointer;}
+.vp.on{background:#1A1714;color:#F7F3EC;}
+.ym-row{display:flex;gap:8px;margin-bottom:16px;}
+.ym-sel{flex:1;padding:9px 10px;background:white;border:1px solid #E3DDD3;color:#1A1714;font-size:12px;font-family:'Jost',sans-serif;}
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px;}
+.sum-c{background:white;padding:14px;border:1px solid #E3DDD3;}
+.sum-l{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#A09890;margin-bottom:5px;}
+.sum-v{font-family:'EB Garamond',serif;font-size:21px;}
+.sum-s{font-size:10px;color:#A09890;margin-top:2px;}
+.cal-title{font-family:'EB Garamond',serif;font-size:18px;font-style:italic;margin-bottom:12px;}
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px;}
+.cal-dl{text-align:center;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#A09890;padding:5px 0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:20px;}
+.cc{aspect-ratio:1;background:white;border:1px solid #E3DDD3;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:36px;cursor:default;}
+.cc.hi{background:#EDE8DF;cursor:pointer;}
+.cc.td{border-color:#D4AF78;}
+.cc.em{background:transparent;border-color:transparent;}
+.cc-n{font-family:'EB Garamond',serif;font-size:13px;color:#C8C0B4;}
+.cc.hi .cc-n{color:#1A1714;}
+.cc.td .cc-n{color:#8C6D3F;}
+.cc-dot{width:4px;height:4px;border-radius:50%;background:#B08D5A;margin-top:1px;}
+.cc-cnt{font-size:8px;color:#8C6D3F;}
+.tl-wrap{padding-left:18px;position:relative;}
+.tl-wrap::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:#E3DDD3;}
+.tl-g{margin-bottom:24px;}
+.tl-date{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#8C6D3F;margin-bottom:10px;position:relative;}
+.tl-date::before{content:'';position:absolute;left:-22px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:#F7F3EC;border:1.5px solid #D4AF78;}
+.tl-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:white;border:1px solid #E3DDD3;margin-bottom:7px;}
+.tl-thumb{width:40px;height:40px;object-fit:cover;background:#EDE8DF;flex-shrink:0;}
+.tl-info{flex:1;min-width:0;}
+.tl-brand{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:#8C6D3F;margin-bottom:2px;}
+.tl-name{font-size:13px;font-family:'EB Garamond',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tl-price{font-family:'EB Garamond',serif;font-size:14px;color:#A09890;}
+.chart-c{background:white;border:1px solid #E3DDD3;padding:16px;margin-bottom:14px;}
+.chart-t{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#A09890;margin-bottom:12px;}
+.chart-w{position:relative;height:180px;}
+.mr{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #E3DDD3;cursor:pointer;}
+.mr-l{font-size:13px;}
+.mr-s{font-size:9px;color:#A09890;margin-top:2px;}
+.mr-a{font-family:'EB Garamond',serif;font-size:17px;color:#8C6D3F;}
+.f-drop-label{display:block;cursor:pointer;}
+.f-drop{border:1px solid #E3DDD3;padding:28px 16px;text-align:center;background:white;margin-bottom:14px;}
+.f-prev{width:100%;max-height:220px;object-fit:contain;display:none;border:1px solid #E3DDD3;margin-bottom:14px;}
+.sec-lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#A09890;margin-bottom:8px;display:block;}
+.b-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+.b-in{flex:1;padding:10px 11px;background:white;border:1px solid #E3DDD3;color:#1A1714;font-family:'Jost',sans-serif;font-size:13px;}
+.b-sep{font-size:12px;color:#C8C0B4;}
+.shop-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;}
+.find-btn{width:100%;padding:13px;background:#1A1714;color:#F7F3EC;border:none;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+.find-btn:disabled{background:#E3DDD3;color:#C8C0B4;cursor:not-allowed;}
+.find-load{display:none;flex-direction:column;align-items:center;gap:12px;padding:48px;background:white;border:1px solid #E3DDD3;margin-top:14px;}
+.find-load.on{display:flex;}
+.load-ring{width:28px;height:28px;border:1.5px solid #E3DDD3;border-top-color:#8C6D3F;border-radius:50%;animation:spin 1s linear infinite;}
+.load-txt{font-size:11px;color:#A09890;}
+.r-intro{padding:14px;background:#EDE8DF;border-left:2px solid #B08D5A;font-size:12px;line-height:1.8;font-style:italic;font-family:'EB Garamond',serif;margin-bottom:12px;color:#46413B;}
+.r-card{display:flex;gap:12px;padding:14px;background:white;border:1px solid #E3DDD3;margin-bottom:9px;text-decoration:none;color:#1A1714;}
+.r-num{font-family:'EB Garamond',serif;font-size:26px;color:#E3DDD3;flex-shrink:0;line-height:1;font-style:italic;}
+.r-brand{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#8C6D3F;margin-bottom:3px;}
+.r-name{font-size:13px;font-family:'EB Garamond',serif;margin-bottom:2px;}
+.r-price{font-family:'EB Garamond',serif;font-size:15px;color:#A09890;margin-bottom:3px;}
+.r-desc{font-size:10px;color:#A09890;line-height:1.6;}
+.r-url{font-size:8px;color:#8C6D3F;letter-spacing:1.5px;text-transform:uppercase;margin-top:5px;}
+.ib{background:white;border:1px solid #E3DDD3;padding:18px;margin-bottom:12px;}
+.ib-t{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#A09890;margin-bottom:14px;}
+.ai-txt{font-family:'EB Garamond',serif;font-size:15px;line-height:1.85;font-style:italic;}
+.ai-txt.dim{color:#C8C0B4;font-family:'Jost',sans-serif;font-size:12px;font-style:normal;}
+.bb{margin-bottom:10px;}
+.bb-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;}
+.bb-row span:last-child{color:#A09890;}
+.bt{height:2px;background:#EDE8DF;}
+.bf{height:100%;background:linear-gradient(90deg,#8C6D3F,#D4AF78);transition:width 0.8s ease;}
+.cat-cloud{display:flex;flex-wrap:wrap;gap:6px;}
+.ctag{padding:5px 10px;border:1px solid #E3DDD3;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#A09890;}
+.ctag.top{border-color:#1A1714;background:#1A1714;color:#F7F3EC;}
+.pr-trio{display:flex;gap:8px;}
+.pr-i{flex:1;text-align:center;padding:11px 6px;background:#EDE8DF;}
+.pr-n{font-family:'EB Garamond',serif;font-size:16px;}
+.pr-l{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:#A09890;margin-top:2px;}
+.reco-i{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-left:1px solid #D4AF78;margin-bottom:8px;background:#F7F3EC;}
+.reco-t{font-size:12px;line-height:1.6;}
+.reco-t strong{color:#8C6D3F;}
+.ghost-btn{display:inline-block;padding:9px 20px;margin-top:12px;border:1px solid #1A1714;color:#1A1714;background:transparent;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:'Jost',sans-serif;}
+.al-note{padding:12px 14px;background:#EDE8DF;border-left:2px solid #B08D5A;font-size:11px;line-height:1.8;color:#46413B;margin-bottom:16px;}
+.al-note strong{color:#1A1714;}
+.al-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:white;border:1px solid #E3DDD3;margin-bottom:9px;}
+.al-thumb{width:40px;height:40px;object-fit:cover;background:#EDE8DF;flex-shrink:0;}
+.al-info{flex:1;min-width:0;}
+.al-brand{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:#8C6D3F;margin-bottom:2px;}
+.al-name{font-size:13px;font-family:'EB Garamond',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.al-price{font-family:'EB Garamond',serif;font-size:14px;color:#A09890;}
+.al-st{font-size:9px;color:#A09890;margin-top:2px;display:flex;align-items:center;gap:4px;}
+.al-dot{width:4px;height:4px;border-radius:50%;background:#C8C0B4;}
+.al-dot.r{background:#9C3A2E;}
+.al-dot.g{background:#7A8C72;}
+.tog-w{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
+.tog-l{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:#A09890;}
+.tog{width:36px;height:20px;background:#E3DDD3;border-radius:10px;position:relative;cursor:pointer;border:none;transition:background 0.3s;}
+.tog.on{background:#1A1714;}
+.tog-k{position:absolute;top:3px;left:3px;width:14px;height:14px;background:white;border-radius:50%;transition:transform 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.15);}
+.tog.on .tog-k{transform:translateX(16px);}
+.check-btn{width:100%;padding:13px;margin-top:14px;background:transparent;border:1px solid #1A1714;color:#1A1714;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:'Jost',sans-serif;}
+.al-status{font-size:10px;color:#A09890;margin-bottom:12px;}
+.sheet-bg{display:none;position:fixed;inset:0;background:rgba(26,23,20,0.4);z-index:400;align-items:flex-end;justify-content:center;}
+.sheet-bg.on{display:flex;}
+.sheet{background:#F7F3EC;width:100%;max-width:600px;padding:0 20px;border-radius:16px 16px 0 0;max-height:88vh;overflow-y:auto;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));animation:sheetUp 0.35s ease both;}
+@keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sh-pull{width:32px;height:4px;background:#E3DDD3;border-radius:2px;margin:12px auto 18px;}
+.sh-title{font-family:'EB Garamond',serif;font-size:22px;font-style:italic;margin-bottom:20px;}
+.fg{margin-bottom:13px;}
+.fl{display:block;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#A09890;margin-bottom:5px;}
+.fi{width:100%;padding:10px 11px;background:white;border:1px solid #E3DDD3;color:#1A1714;font-family:'Jost',sans-serif;font-size:14px;}
+textarea.fi{min-height:60px;resize:none;}
+.sh-btns{display:flex;gap:8px;margin-top:20px;}
+.sh-ok{flex:1;padding:13px;background:#1A1714;color:#F7F3EC;border:none;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+.sh-cancel{padding:13px 16px;background:transparent;border:1px solid #E3DDD3;color:#A09890;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+.day-list{display:flex;flex-direction:column;gap:9px;max-height:55vh;overflow-y:auto;}
+.toast{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom,0px) + 10px);left:50%;transform:translateX(-50%) translateY(60px);background:#1A1714;color:#F7F3EC;padding:11px 20px;font-size:11px;z-index:500;opacity:0;transition:all 0.3s;white-space:nowrap;border-left:2px solid #D4AF78;pointer-events:none;}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div><div class="logo">Closet</div><div class="logo-s">나의 패션 다이어리</div></div>
+  <div class="hdr-r">
+    <div class="hs"><div class="hs-n" id="hI">0</div><div class="hs-l">위시</div></div>
+    <div class="hs"><div class="hs-n" id="hM">₩0</div><div class="hs-l">이달</div></div>
+  </div>
+</div>
+<div class="main" id="mainEl">
+  <div class="page on" id="pg-wish">
+    <div class="up-box">
+      <div class="up-title">장바구니 캡처를 올려주세요</div>
+      <div class="up-sub">AI가 브랜드·상품명·가격을 자동으로 추출해요<br>담은 날짜가 기록돼요</div>
+      <label for="fileInput" class="file-label">이미지 선택</label>
+      <input type="file" id="fileInput" accept="image/*" multiple style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;">
+    </div>
+    <div class="analyzing" id="analyzing"><div class="spin"></div><span>AI 분석 중...</span></div>
+    <div class="filters">
+      <button class="pill on" onclick="setF(this,'all')">전체</button>
+      <button class="pill" onclick="setF(this,'wish')">미구매</button>
+      <button class="pill" onclick="setF(this,'fresh')">신규</button>
+      <button class="pill" onclick="setF(this,'aging')">2주 이상</button>
+      <button class="pill" onclick="setF(this,'done')">구매완료</button>
+      <select class="sort-sel" onchange="cSort=this.value;renderWish()">
+        <option value="newest">최신순</option><option value="age">오래된순</option>
+        <option value="phi">가격↑</option><option value="plo">가격↓</option>
+      </select>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="total-bar" id="totalBar" style="display:none">
+      <span class="total-lbl">위시리스트 총액</span>
+      <span class="total-amt" id="totalAmt">₩0</span>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+  <div class="page" id="pg-hist">
+    <div class="pg-title">구매 내역</div>
+    <div class="vpills">
+      <button class="vp on" onclick="setHV('cal',this)">달력</button>
+      <button class="vp" onclick="setHV('tl',this)">타임라인</button>
+      <button class="vp" onclick="setHV('mo',this)">월별</button>
+      <button class="vp" onclick="setHV('yr',this)">연도별</button>
+    </div>
+    <div class="ym-row">
+      <select class="ym-sel" id="yS" onchange="renderHist()"></select>
+      <select class="ym-sel" id="mS" onchange="renderHist()"></select>
+    </div>
+    <div id="histContent"></div>
+  </div>
+  <div class="page" id="pg-find">
+    <div class="pg-title">비슷한 스타일 찾기</div>
+    <label for="finderInput" class="f-drop-label">
+      <div class="f-drop">
+        <div class="up-title" style="font-size:18px">옷 사진을 올려주세요</div>
+        <div class="up-sub">비슷한 스타일 상품을 찾아드려요</div>
+      </div>
+    </label>
+    <input type="file" id="finderInput" accept="image/*" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;">
+    <img id="fPrev" class="f-prev">
+    <label class="sec-lbl">예산 범위</label>
+    <div class="b-row">
+      <input class="b-in" id="bMin" type="number" placeholder="최소" value="0">
+      <span class="b-sep">—</span>
+      <input class="b-in" id="bMax" type="number" placeholder="최대" value="200000">
+      <span class="b-sep" style="font-size:10px;color:#A09890">원</span>
+    </div>
+    <label class="sec-lbl">선호 쇼핑몰</label>
+    <div class="shop-row">
+      <button class="pill on" onclick="tSh(this,'무신사')">무신사</button>
+      <button class="pill on" onclick="tSh(this,'29CM')">29CM</button>
+      <button class="pill on" onclick="tSh(this,'W컨셉')">W컨셉</button>
+      <button class="pill on" onclick="tSh(this,'에이블리')">에이블리</button>
+      <button class="pill" onclick="tSh(this,'ZARA')">ZARA</button>
+      <button class="pill" onclick="tSh(this,'H&M')">H&M</button>
+      <button class="pill" onclick="tSh(this,'유니클로')">유니클로</button>
+    </div>
+    <button class="find-btn" id="findBtn" disabled onclick="runFinder()">스타일 찾기</button>
+    <div class="find-load" id="findLoad"><div class="load-ring"></div><div class="load-txt">AI가 검색 중이에요</div></div>
+    <div id="findResults"></div>
+  </div>
+  <div class="page" id="pg-ins">
+    <div class="pg-title">취향 분석</div>
+    <div class="ib"><div class="ib-t">AI 취향 리포트</div><div class="ai-txt dim" id="aiTxt">아이템을 추가하면 분석해드려요</div><button class="ghost-btn" onclick="runAI()">다시 분석하기</button></div>
+    <div class="ib"><div class="ib-t">선호 브랜드</div><div id="bBars"></div></div>
+    <div class="ib"><div class="ib-t">카테고리 분포</div><div class="cat-cloud" id="catCloud"></div></div>
+    <div class="ib"><div class="ib-t">가격대 분석</div><div class="pr-trio" id="prTrio"></div></div>
+    <div class="ib"><div class="ib-t">취향 기반 추천</div><div id="recoArea"></div></div>
+  </div>
+  <div class="page" id="pg-alert">
+    <div class="pg-title">할인 알림</div>
+    <div class="al-note"><strong>가격 변동 알림</strong><br>알림을 켜두면 앱을 열 때마다 가격을 확인해요. 편집에서 링크를 먼저 등록해주세요.</div>
+    <div class="al-status" id="alStatus"></div>
+    <div id="alRows"></div>
+    <button class="check-btn" onclick="checkPrices()">가격 모두 확인하기</button>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab on" onclick="showPg('wish',this)"><div class="tab-ic">○</div><div>위시</div></button>
+  <button class="tab" onclick="showPg('hist',this)"><div class="tab-ic">▦</div><div>내역</div></button>
+  <button class="tab" onclick="showPg('find',this)"><div class="tab-ic">✦</div><div>찾기</div></button>
+  <button class="tab" onclick="showPg('ins',this)"><div class="tab-ic">◈</div><div>분석</div></button>
+  <button class="tab" onclick="showPg('alert',this)"><div class="tab-ic">◎</div><div>알림</div></button>
+</div>
+<div class="sheet-bg" id="editSheet" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <div class="sh-pull"></div>
+    <div class="sh-title">아이템 편집</div>
+    <div class="fg"><label class="fl">브랜드</label><input class="fi" id="eBrand"></div>
+    <div class="fg"><label class="fl">상품명</label><input class="fi" id="eName"></div>
+    <div class="fg"><label class="fl">가격</label><input class="fi" id="ePrice" type="number"></div>
+    <div class="fg"><label class="fl">원가</label><input class="fi" id="eOrig" type="number"></div>
+    <div class="fg"><label class="fl">카테고리</label><input class="fi" id="eCat"></div>
+    <div class="fg"><label class="fl">링크</label><input class="fi" id="eLink" type="url"></div>
+    <div class="fg"><label class="fl">메모</label><textarea class="fi" id="eMemo"></textarea></div>
+    <div class="sh-btns">
+      <button class="sh-ok" onclick="saveItem()">저장하기</button>
+      <button class="sh-cancel" onclick="closeSheet()">취소</button>
+    </div>
+  </div>
+</div>
+<div class="sheet-bg" id="daySheet" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="sheet">
+    <div class="sh-pull"></div>
+    <div class="sh-title" id="dayTitle">구매 내역</div>
+    <div class="day-list" id="dayList"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var API = '/api/analyze';
+var items = JSON.parse(localStorage.getItem('closet_v5') || '[]');
+var cFilter='all', cSort='newest', editId=null, hView='cal';
+var selShops=['무신사','29CM','W컨셉','에이블리'];
+var fImgData=null, charts={};
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
+
+document.getElementById('fileInput').addEventListener('change', function(e){
+  var files = e.target.files;
+  for(var i=0;i<files.length;i++) analyzeImg(files[i]);
+  e.target.value='';
+});
+document.getElementById('finderInput').addEventListener('change', function(e){
+  if(e.target.files[0]) loadFImg(e.target.files[0]);
+  e.target.value='';
+});
+
+renderWish(); updateStats(); initHistSelects();
+
+function showPg(id,btn){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('pg-'+id).classList.add('on');
+  btn.classList.add('on');
+  document.getElementById('mainEl').scrollTop=0;
+  if(id==='hist') renderHist();
+  if(id==='ins') renderIns();
+  if(id==='alert') renderAlerts();
+}
+
+function toB64(file){
+  return new Promise(function(res){
+    var img=new Image(), url=URL.createObjectURL(file);
+    img.onload=function(){
+      var c=document.createElement('canvas'), max=1024;
+      var w=img.width,h=img.height;
+      if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}
+      c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      res(c.toDataURL('image/jpeg',0.75));
+    };
+    img.onerror=function(){var r=new FileReader();r.onload=function(e){res(e.target.result);};r.readAsDataURL(file);};
+    img.src=url;
+  });
+}
+
+async function callAPI(body){
+  var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return await r.json();
+}
+
+async function analyzeImg(file){
+  var bar=document.getElementById('analyzing'); bar.classList.add('on');
+  var img=await toB64(file);
+  var b64=img.split(',')[1];
+  try{
+    var data=await callAPI({
+      model:'claude-sonnet-4-20250514', max_tokens:1000,
+      messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+        {type:'text',text:'쇼핑몰 장바구니/상품 이미지에서 상품 정보 추출. JSON 배열만 반환 (마크다운 없이):\n[{"brand":"","name":"","price":0,"originalPrice":0,"category":"상의|하의|아우터|신발|가방|액세서리|기타","link":"","note":""}]'}
+      ]}]
+    });
+    if(data.error) throw new Error(data.error.message);
+    var txt=data.content.map(function(b){return b.text||'';}).join('');
+    var parsed; try{parsed=JSON.parse(txt.trim());}catch(e){var m=txt.match(/\[[\s\S]*\]/);parsed=m?JSON.parse(m[0]):[];}
+    var arr=Array.isArray(parsed)?parsed:[parsed];
+    arr.forEach(function(it){
+      items.push({id:Date.now()+Math.random(),brand:it.brand||'',name:it.name||'',price:it.price||0,originalPrice:it.originalPrice||0,category:it.category||'',link:it.link||'',note:it.note||'',purchased:false,purchasedAt:null,addedAt:new Date().toISOString(),imageUrl:img,alertOn:false,priceChanged:false,lastChecked:null});
+    });
+    save(); renderWish(); updateStats(); toast('✦ '+arr.length+'개 추가됨');
+  }catch(e){ toast('분석 실패: '+e.message, true); }
+  bar.classList.remove('on');
+}
+
+function renderWish(){
+  var g=document.getElementById('grid'); g.innerHTML='';
+  var vis=items.filter(function(it){
+    if(cFilter==='wish') return !it.purchased;
+    if(cFilter==='done') return it.purchased;
+    if(cFilter==='fresh') return !it.purchased&&dSince(it.addedAt)<=7;
+    if(cFilter==='aging') return !it.purchased&&dSince(it.addedAt)>=14;
+    return true;
+  });
+  vis.sort(function(a,b){
+    if(cSort==='newest') return new Date(b.addedAt)-new Date(a.addedAt);
+    if(cSort==='age') return dSince(a.addedAt)-dSince(b.addedAt);
+    if(cSort==='phi') return (b.price||0)-(a.price||0);
+    if(cSort==='plo') return (a.price||0)-(b.price||0);
+    return 0;
+  });
+  if(!vis.length){
+    g.innerHTML='<div class="empty"><div class="empty-g">∅</div><div class="empty-t">아직 비어있어요</div><div class="empty-s">캡처를 올려 위시리스트를 만들어보세요</div></div>';
+  } else {
+    vis.forEach(function(it,i){
+      var age=dSince(it.addedAt), isSale=it.originalPrice&&it.originalPrice>it.price;
+      var pill='',pCls='';
+      if(!it.purchased){if(age<=3){pill='New';pCls='a-new';}else if(age<=13){pill=age+'일';pCls='a-mid';}else{pill=age+'일';pCls='a-old';}}
+      var c=document.createElement('div'); c.className='card'; c.style.animationDelay=(i*0.03)+'s';
+      c.innerHTML='<div class="c-img-w">'+(it.imageUrl?'<img class="c-img" src="'+it.imageUrl+'" loading="lazy">':'<div class="c-ph">◻</div>')+(it.category?'<div class="cat-tag">'+it.category+'</div>':'')+(pill?'<div class="age-tag '+pCls+'">'+pill+'</div>':'')+'<div class="c-acts"><button class="act-btn" onclick="openEdit(\''+it.id+'\')">✎</button><button class="act-btn" onclick="toggleBuy(\''+it.id+'\')">'+(it.purchased?'↩':'✓')+'</button><button class="act-btn" onclick="delItem(\''+it.id+'\')">✕</button></div>'+(it.purchased?'<div class="bought-v"><div class="bought-m">Purchased</div></div>':'')+'</div><div class="c-body">'+(it.brand?'<div class="c-brand">'+it.brand+'</div>':'')+'<div class="c-name">'+(it.name||'상품명 미확인')+'</div>'+(!it.purchased&&age>0?'<div class="c-age">'+fmtDate(it.addedAt)+' · '+age+'일 경과</div>':'')+(it.purchased&&it.purchasedAt?'<div class="c-age">'+fmtDate(it.purchasedAt)+' 구매</div>':'')+(it.note?'<div class="c-note">'+it.note+'</div>':'')+'<div class="c-foot"><div><span class="c-price'+(isSale?' s':'')+'">'+( it.price?'₩'+fm(it.price):'—')+'</span>'+(isSale?'<span class="c-orig">₩'+fm(it.originalPrice)+'</span>':'')+'</div>'+(it.link?'<a class="c-link" href="'+it.link+'" target="_blank">구매→</a>':'')+'</div></div>';
+      g.appendChild(c);
+    });
+  }
+  var wt=items.filter(function(i){return !i.purchased;}).reduce(function(s,i){return s+(i.price||0);},0);
+  var bar=document.getElementById('totalBar');
+  if(items.length){bar.style.display='flex';document.getElementById('totalAmt').textContent='₩'+fm(wt);}
+  else bar.style.display='none';
+  updateStats();
+}
+function setF(btn,f){cFilter=f;document.querySelectorAll('.filters .pill').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderWish();}
+
+function initHistSelects(){
+  var bought=items.filter(function(i){return i.purchased&&i.purchasedAt;});
+  var years=[];bought.forEach(function(i){var y=new Date(i.purchasedAt).getFullYear();if(years.indexOf(y)<0)years.push(y);});
+  years.sort(function(a,b){return b-a;}); if(!years.length)years.push(new Date().getFullYear());
+  var yS=document.getElementById('yS'); yS.innerHTML=years.map(function(y){return'<option>'+y+'</option>';}).join('');
+  var mS=document.getElementById('mS'); mS.innerHTML=[1,2,3,4,5,6,7,8,9,10,11,12].map(function(m){return'<option value="'+m+'">'+m+'월</option>';}).join('');
+  mS.value=new Date().getMonth()+1;
+}
+function setHV(v,btn){hView=v;document.querySelectorAll('.vp').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');document.getElementById('mS').style.display=(v==='cal'||v==='tl')?'block':'none';renderHist();}
+function renderHist(){
+  var c=document.getElementById('histContent');c.innerHTML='';
+  var yr=parseInt(document.getElementById('yS').value||new Date().getFullYear());
+  var mo=parseInt(document.getElementById('mS').value||new Date().getMonth()+1);
+  var bought=items.filter(function(i){return i.purchased&&i.purchasedAt;});
+  if(hView==='cal')renderCal(c,yr,mo,bought);
+  else if(hView==='tl')renderTL(c,yr,mo,bought);
+  else if(hView==='mo')renderMo(c,yr,bought);
+  else renderYr(c,bought);
+}
+function renderCal(cont,yr,mo,bought){
+  var mis=bought.filter(function(i){var d=new Date(i.purchasedAt);return d.getFullYear()===yr&&d.getMonth()+1===mo;});
+  var byD={};mis.forEach(function(i){var d=new Date(i.purchasedAt).getDate();if(!byD[d])byD[d]=[];byD[d].push(i);});
+  var tot=mis.reduce(function(s,i){return s+(i.price||0);},0);
+  var sg=document.createElement('div');sg.className='sum-grid';
+  sg.innerHTML='<div class="sum-c"><div class="sum-l">'+mo+'월 지출</div><div class="sum-v">₩'+fm(tot)+'</div><div class="sum-s">'+mis.length+'개 구매</div></div><div class="sum-c"><div class="sum-l">평균 단가</div><div class="sum-v">'+(mis.length?'₩'+fm(Math.round(tot/mis.length)):'—')+'</div></div>';
+  cont.appendChild(sg);
+  var fd=new Date(yr,mo-1,1).getDay(),dim=new Date(yr,mo,0).getDate(),td=new Date(),itm=(td.getFullYear()===yr&&td.getMonth()+1===mo);
+  var cw=document.createElement('div');
+  cw.innerHTML='<div class="cal-title">'+yr+'년 '+mo+'월</div><div class="cal-head">'+['일','월','화','수','목','금','토'].map(function(d){return'<div class="cal-dl">'+d+'</div>';}).join('')+'</div><div class="cal-grid" id="calG"></div>';
+  cont.appendChild(cw);
+  var cg=cw.querySelector('#calG');
+  for(var i=0;i<fd;i++){var x=document.createElement('div');x.className='cc em';cg.appendChild(x);}
+  for(var d=1;d<=dim;d++){
+    var hi=!!(byD[d]&&byD[d].length),x=document.createElement('div');
+    x.className='cc'+(hi?' hi':'')+(itm&&d===td.getDate()?' td':'');
+    x.innerHTML='<div class="cc-n">'+d+'</div>'+(hi?'<div class="cc-dot"></div><div class="cc-cnt">'+byD[d].length+'</div>':'');
+    if(hi)(function(dd,di){x.onclick=function(){showDaySheet(yr,mo,dd,di);};})(d,byD[d]);
+    cg.appendChild(x);
+  }
+}
+function showDaySheet(y,m,d,di){
+  document.getElementById('dayTitle').textContent=y+'년 '+m+'월 '+d+'일';
+  document.getElementById('dayList').innerHTML=di.map(function(it){return'<div class="tl-item"><div class="tl-thumb">'+(it.imageUrl?'<img src="'+it.imageUrl+'" style="width:40px;height:40px;object-fit:cover">':'◻')+'</div><div class="tl-info">'+(it.brand?'<div class="tl-brand">'+it.brand+'</div>':'')+'<div class="tl-name">'+(it.name||'상품명 미확인')+'</div><div class="tl-price">'+(it.price?'₩'+fm(it.price):'')+'</div></div></div>';}).join('');
+  document.getElementById('daySheet').classList.add('on');
+}
+function renderTL(cont,yr,mo,bought){
+  var mis=bought.filter(function(i){var d=new Date(i.purchasedAt);return d.getFullYear()===yr&&d.getMonth()+1===mo;});
+  mis.sort(function(a,b){return new Date(b.purchasedAt)-new Date(a.purchasedAt);});
+  if(!mis.length){cont.innerHTML='<div class="empty" style="grid-column:auto"><div class="empty-g">∅</div><div class="empty-t">내역이 없어요</div></div>';return;}
+  var byD={};mis.forEach(function(i){var k=i.purchasedAt.slice(0,10);if(!byD[k])byD[k]=[];byD[k].push(i);});
+  var tl=document.createElement('div');tl.className='tl-wrap';
+  Object.keys(byD).sort(function(a,b){return b.localeCompare(a);}).forEach(function(dk){
+    var p=dk.split('-'),g=document.createElement('div');g.className='tl-g';
+    g.innerHTML='<div class="tl-date">'+parseInt(p[0])+'년 '+parseInt(p[1])+'월 '+parseInt(p[2])+'일</div>'+byD[dk].map(function(it){return'<div class="tl-item"><div class="tl-thumb">'+(it.imageUrl?'<img src="'+it.imageUrl+'" style="width:40px;height:40px;object-fit:cover">':'◻')+'</div><div class="tl-info">'+(it.brand?'<div class="tl-brand">'+it.brand+'</div>':'')+'<div class="tl-name">'+(it.name||'상품명 미확인')+'</div><div class="tl-price">'+(it.price?'₩'+fm(it.price):'')+'</div></div></div>';}).join('');
+    tl.appendChild(g);
+  });
+  cont.appendChild(tl);
+}
+function renderMo(cont,yr,bought){
+  var yi=bought.filter(function(i){return new Date(i.purchasedAt).getFullYear()===yr;});
+  var bm={};for(var m=1;m<=12;m++)bm[m]={t:0,c:0,ns:[]};
+  yi.forEach(function(i){var m=new Date(i.purchasedAt).getMonth()+1;bm[m].t+=(i.price||0);bm[m].c++;bm[m].ns.push(i.name||'상품');});
+  var tot=yi.reduce(function(s,i){return s+(i.price||0);},0);
+  var sg=document.createElement('div');sg.className='sum-grid';
+  sg.innerHTML='<div class="sum-c"><div class="sum-l">'+yr+'년 총 지출</div><div class="sum-v">₩'+fm(tot)+'</div><div class="sum-s">'+yi.length+'개</div></div><div class="sum-c"><div class="sum-l">월평균</div><div class="sum-v">₩'+fm(Math.round(tot/12))+'</div></div>';
+  cont.appendChild(sg);
+  var cc=document.createElement('div');cc.className='chart-c';cc.innerHTML='<div class="chart-t">월별 지출 추이</div><div class="chart-w"><canvas id="mChart"></canvas></div>';cont.appendChild(cc);
+  setTimeout(function(){var ctx=document.getElementById('mChart')&&document.getElementById('mChart').getContext('2d');if(!ctx)return;if(charts.m)charts.m.destroy();charts.m=new Chart(ctx,{type:'bar',data:{labels:['1','2','3','4','5','6','7','8','9','10','11','12'].map(function(m){return m+'월';}),datasets:[{data:Object.values(bm).map(function(m){return m.t;}),backgroundColor:'rgba(140,109,63,0.12)',borderColor:'#8C6D3F',borderWidth:1.5,borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(26,23,20,0.04)'},ticks:{color:'#A09890',font:{size:9,family:'Jost'}}},y:{grid:{color:'rgba(26,23,20,0.04)'},ticks:{color:'#A09890',font:{size:9,family:'Jost'},callback:function(v){return'₩'+fm(v);}}}}}});},100);
+  var ml=document.createElement('div');ml.style.marginTop='6px';
+  for(var m=12;m>=1;m--){if(!bm[m].c)continue;var row=document.createElement('div');row.className='mr';row.innerHTML='<div><div class="mr-l">'+m+'월</div><div class="mr-s">'+bm[m].ns.slice(0,2).join(', ')+(bm[m].c>2?' 외 '+(bm[m].c-2)+'개':'')+'</div></div><div class="mr-a">₩'+fm(bm[m].t)+'</div>';(function(mm){row.onclick=function(){document.getElementById('mS').value=mm;setHV('cal',document.querySelectorAll('.vp')[0]);};})(m);ml.appendChild(row);}
+  cont.appendChild(ml);
+}
+function renderYr(cont,bought){
+  var by={};bought.forEach(function(i){var y=new Date(i.purchasedAt).getFullYear();if(!by[y])by[y]={t:0,c:0};by[y].t+=(i.price||0);by[y].c++;});
+  var yrs=Object.keys(by).sort(function(a,b){return b-a;});
+  if(!yrs.length){cont.innerHTML='<div class="empty" style="grid-column:auto"><div class="empty-g">∅</div><div class="empty-t">내역이 없어요</div></div>';return;}
+  var tot=bought.reduce(function(s,i){return s+(i.price||0);},0);
+  var sg=document.createElement('div');sg.className='sum-grid';sg.innerHTML='<div class="sum-c"><div class="sum-l">누적 지출</div><div class="sum-v">₩'+fm(tot)+'</div><div class="sum-s">'+bought.length+'개</div></div><div class="sum-c"><div class="sum-l">연평균</div><div class="sum-v">₩'+fm(Math.round(tot/Math.max(yrs.length,1)))+'</div></div>';cont.appendChild(sg);
+  var cc=document.createElement('div');cc.className='chart-c';cc.innerHTML='<div class="chart-t">연도별 지출</div><div class="chart-w"><canvas id="yChart"></canvas></div>';cont.appendChild(cc);
+  var sy=[].concat(yrs).reverse();
+  setTimeout(function(){var ctx=document.getElementById('yChart')&&document.getElementById('yChart').getContext('2d');if(!ctx)return;if(charts.y)charts.y.destroy();charts.y=new Chart(ctx,{type:'line',data:{labels:sy,datasets:[{data:sy.map(function(y){return by[y].t;}),borderColor:'#8C6D3F',backgroundColor:'rgba(140,109,63,0.06)',borderWidth:1.5,pointBackgroundColor:'#8C6D3F',pointRadius:4,tension:0.35,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(26,23,20,0.04)'},ticks:{color:'#A09890',font:{size:9}}},y:{grid:{color:'rgba(26,23,20,0.04)'},ticks:{color:'#A09890',font:{size:9},callback:function(v){return'₩'+fm(v);}}}}}});},100);
+  var yl=document.createElement('div');yl.style.marginTop='6px';yrs.forEach(function(y){var row=document.createElement('div');row.className='mr';row.innerHTML='<div><div class="mr-l">'+y+'년</div><div class="mr-s">'+by[y].c+'개 구매</div></div><div class="mr-a">₩'+fm(by[y].t)+'</div>';(function(yy){row.onclick=function(){document.getElementById('yS').value=yy;setHV('mo',document.querySelectorAll('.vp')[2]);};})(y);yl.appendChild(row);});cont.appendChild(yl);
+}
+
+async function loadFImg(file){fImgData=await toB64(file);var p=document.getElementById('fPrev');p.src=fImgData;p.style.display='block';document.querySelector('.f-drop-label').style.display='none';document.getElementById('findBtn').disabled=false;}
+function tSh(btn,s){btn.classList.toggle('on');var idx=selShops.indexOf(s);if(idx>=0)selShops.splice(idx,1);else selShops.push(s);}
+async function runFinder(){
+  if(!fImgData){toast('이미지를 먼저 올려주세요',true);return;}
+  var btn=document.getElementById('findBtn');btn.disabled=true;btn.textContent='검색 중...';
+  document.getElementById('findLoad').classList.add('on');document.getElementById('findResults').innerHTML='';
+  var mn=parseInt(document.getElementById('bMin').value)||0,mx=parseInt(document.getElementById('bMax').value)||999999;
+  var sh=selShops.join(', ')||'무신사, 29CM';
+  var b64=fImgData.split(',')[1];
+  try{
+    var data=await callAPI({model:'claude-sonnet-4-20250514',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'이 옷 이미지와 비슷한 스타일 상품을 웹에서 찾아주세요. 예산:'+fm(mn)+'~'+fm(mx)+'원, 쇼핑몰:'+sh+'. JSON만:\n{"styleDesc":"스타일설명","results":[{"brand":"","name":"","price":0,"shop":"","url":"","desc":"","similarity":"높음|중간|낮음"}]}'}]}]});
+    if(data.error)throw new Error(data.error.message);
+    var txt=data.content.map(function(b){return b.text||'';}).join('');
+    var p;try{p=JSON.parse(txt.trim());}catch(e){var m=txt.match(/\{[\s\S]*\}/);p=m?JSON.parse(m[0]):null;}
+    if(!p)throw new Error('파싱 실패');
+    var res=(p.results||[]).filter(function(r){return !r.price||(r.price>=mn&&r.price<=mx);});
+    document.getElementById('findResults').innerHTML=(p.styleDesc?'<div class="r-intro" style="margin-top:14px">"'+p.styleDesc+'"</div>':'')+res.map(function(r,i){return'<a class="r-card" href="'+(r.url||'#')+'" target="_blank"><div class="r-num">0'+(i+1)+'</div><div style="flex:1;min-width:0">'+(r.brand?'<div class="r-brand">'+r.brand+(r.shop?' · '+r.shop:'')+'</div>':'')+'<div class="r-name">'+(r.name||'상품명')+'</div><div class="r-price">'+(r.price?'₩'+fm(r.price):'')+'</div>'+(r.desc?'<div class="r-desc">'+r.desc+'</div>':'')+(r.url?'<div class="r-url">상품 보기 →</div>':'')+'</div><div style="font-size:9px;color:'+(r.similarity==='높음'?'#7A8C72':'#A09890')+'">'+( r.similarity||'')+'</div></a>';}).join('');
+  }catch(e){document.getElementById('findResults').innerHTML='<div class="empty" style="grid-column:auto"><div class="empty-g">✕</div><div class="empty-t">검색 실패</div></div>';toast('검색 실패',true);}
+  document.getElementById('findLoad').classList.remove('on');btn.disabled=false;btn.textContent='스타일 찾기';
+}
+
+function renderIns(){renderBBars();renderCats();renderPT();renderRecos();if(items.length>=2)runAI();else{document.getElementById('aiTxt').textContent='아이템을 2개 이상 추가해주세요.';document.getElementById('aiTxt').className='ai-txt dim';}}
+function renderBBars(){var c={};items.forEach(function(i){if(i.brand)c[i.brand]=(c[i.brand]||0)+1;});var s=Object.entries(c).sort(function(a,b){return b[1]-a[1];}).slice(0,6);var mx=s[0]?s[0][1]:1;var el=document.getElementById('bBars');el.innerHTML=s.length?s.map(function(e){return'<div class="bb"><div class="bb-row"><span>'+e[0]+'</span><span>'+e[1]+'개</span></div><div class="bt"><div class="bf" style="width:'+Math.round(e[1]/mx*100)+'%"></div></div></div>';}).join(''):'<div style="color:#C8C0B4;font-size:11px">없음</div>';}
+function renderCats(){var c={};items.forEach(function(i){if(i.category)c[i.category]=(c[i.category]||0)+1;});var s=Object.entries(c).sort(function(a,b){return b[1]-a[1];});document.getElementById('catCloud').innerHTML=s.length?s.map(function(e,i){return'<div class="ctag'+(i<2?' top':'')+'">'+e[0]+' '+e[1]+'</div>';}).join(''):'<div style="color:#C8C0B4;font-size:11px">없음</div>';}
+function renderPT(){var p=items.map(function(i){return i.price;}).filter(function(v){return v>0;});var el=document.getElementById('prTrio');if(!p.length){el.innerHTML='<div style="color:#C8C0B4;font-size:11px">없음</div>';return;}var avg=Math.round(p.reduce(function(a,b){return a+b;},0)/p.length);el.innerHTML='<div class="pr-i"><div class="pr-n">₩'+fm(Math.min.apply(null,p))+'</div><div class="pr-l">최저</div></div><div class="pr-i"><div class="pr-n">₩'+fm(avg)+'</div><div class="pr-l">평균</div></div><div class="pr-i"><div class="pr-n">₩'+fm(Math.max.apply(null,p))+'</div><div class="pr-l">최고</div></div>';}
+function renderRecos(){var el=document.getElementById('recoArea');var c={};items.forEach(function(i){if(i.category)c[i.category]=(c[i.category]||0)+1;});var top=Object.entries(c).sort(function(a,b){return b[1]-a[1];})[0];top=top?top[0]:null;var brs=items.map(function(i){return i.brand;}).filter(Boolean);if(!items.length){el.innerHTML='<div style="color:#C8C0B4;font-size:11px">없음</div>';return;}var m={'상의':['아크네 스튜디오','COS','르메르'],'하의':['아크네 스튜디오','리바이스','아디다스'],'아우터':['마뗑킴','앤더슨벨','마가렛호웰'],'신발':['나이키','뉴발란스','ASICS'],'가방':['A.P.C.','메종키츠네','토트앤토트'],'액세서리':['아페쎄','COS','유니클로U']};var rs=((m[top])||['COS','르메르','아크네']).filter(function(r){return brs.indexOf(r)<0;});el.innerHTML=rs.slice(0,3).map(function(r,i){return'<div class="reco-i"><span>'+['✦','◆','—'][i]+'</span><div class="reco-t"><strong>'+r+'</strong> — '+(top||'패션')+' 취향에 잘 맞을 것 같아요</div></div>';}).join('');}
+async function runAI(){if(!items.length)return;var el=document.getElementById('aiTxt');el.className='ai-txt dim';el.textContent='취향을 분석하고 있어요...';var sum=items.map(function(i){return(i.brand||'미상')+' / '+i.name+' / '+(i.category||'기타')+' / '+(i.price?'₩'+fm(i.price):'');}).join('\n');try{var data=await callAPI({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:'위시리스트:\n'+sum+'\n\n패션 취향 분석. 선호 스타일, 브랜드 특성, 가격대, 한줄 요약. 200자 이내, 세련된 문체로.'}]});if(data.error)throw new Error(data.error.message);el.className='ai-txt';el.textContent=data.content.map(function(b){return b.text||'';}).join('');}catch(e){el.textContent='분석에 실패했어요.';}}
+
+function renderAlerts(){var list=document.getElementById('alRows');list.innerHTML='';var ws=items.filter(function(i){return !i.purchased;});if(!ws.length){list.innerHTML='<div style="color:#C8C0B4;font-size:12px;padding:20px 0">위시리스트에 아이템을 추가해보세요.</div>';return;}ws.forEach(function(it){var row=document.createElement('div');row.className='al-row';row.innerHTML='<div class="al-thumb">'+(it.imageUrl?'<img src="'+it.imageUrl+'" style="width:40px;height:40px;object-fit:cover">':'◻')+'</div><div class="al-info">'+(it.brand?'<div class="al-brand">'+it.brand+'</div>':'')+'<div class="al-name">'+(it.name||'상품명 미확인')+'</div><div class="al-price">'+(it.price?'₩'+fm(it.price):'')+'</div>'+(it.priceChanged?'<div class="al-st"><div class="al-dot r"></div> 가격 변동됨</div>':it.lastChecked?'<div class="al-st"><div class="al-dot g"></div>'+it.lastChecked+'</div>':'')+(it.link?'':'<div style="font-size:9px;color:#C8C0B4;margin-top:2px">링크 없음</div>')+'</div><div class="tog-w"><span class="tog-l">알림</span><button class="tog'+(it.alertOn?' on':'')+'" onclick="tA(\''+it.id+'\',this)"><div class="tog-k"></div></button></div>';list.appendChild(row);});}
+function tA(id,btn){var it=items.find(function(i){return i.id==id;});if(!it)return;it.alertOn=!it.alertOn;btn.classList.toggle('on',it.alertOn);save();toast(it.alertOn?'알림 켜짐':'알림 꺼짐');}
+async function checkPrices(){var ts=items.filter(function(i){return i.alertOn&&i.link&&!i.purchased;});if(!ts.length)return;var bar=document.getElementById('alStatus');if(bar)bar.textContent='확인 중...';var ch=0;for(var i=0;i<ts.length;i++){var it=ts[i];try{var data=await callAPI({model:'claude-sonnet-4-20250514',max_tokens:100,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:'이 URL 상품의 현재 가격을 숫자만(원화): '+it.link}]});var txt=data.content.map(function(b){return b.text||'';}).join('');var m=txt.match(/[\d,]+/);if(m){var np=parseInt(m[0].replace(/,/g,''));if(np>0&&np!==it.price){it.priceChanged=true;it.price=np;ch++;}}}catch(e){}it.lastChecked=new Date().toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}save();renderAlerts();renderWish();if(bar)bar.textContent=ch?ch+'개 가격 변동':'변동 없음';if(ch)toast('₩ '+ch+'개 가격 변동!');}
+
+function openEdit(id){editId=id;var it=items.find(function(i){return i.id==id;});if(!it)return;document.getElementById('eBrand').value=it.brand||'';document.getElementById('eName').value=it.name||'';document.getElementById('ePrice').value=it.price||'';document.getElementById('eOrig').value=it.originalPrice||'';document.getElementById('eCat').value=it.category||'';document.getElementById('eLink').value=it.link||'';document.getElementById('eMemo').value=it.note||'';document.getElementById('editSheet').classList.add('on');}
+function closeSheet(){document.getElementById('editSheet').classList.remove('on');editId=null;}
+function saveItem(){if(!editId)return;var idx=items.findIndex(function(i){return i.id==editId;});if(idx<0)return;items[idx]=Object.assign({},items[idx],{brand:document.getElementById('eBrand').value,name:document.getElementById('eName').value,price:parseFloat(document.getElementById('ePrice').value)||0,originalPrice:parseFloat(document.getElementById('eOrig').value)||0,category:document.getElementById('eCat').value,link:document.getElementById('eLink').value,note:document.getElementById('eMemo').value,priceChanged:false});save();renderWish();closeSheet();toast('저장됐어요');}
+function toggleBuy(id){var it=items.find(function(i){return i.id==id;});if(!it)return;it.purchased=!it.purchased;it.purchasedAt=it.purchased?new Date().toISOString():null;it.priceChanged=false;save();renderWish();toast(it.purchased?'구매 완료':'위시리스트로 이동');}
+function delItem(id){if(!confirm('삭제할까요?'))return;items=items.filter(function(i){return i.id!=id;});save();renderWish();toast('삭제됐어요');}
+
+function save(){localStorage.setItem('closet_v5',JSON.stringify(items));}
+function fm(n){return(n||0).toLocaleString();}
+function dSince(iso){if(!iso)return 0;return Math.floor((Date.now()-new Date(iso))/86400000);}
+function fmtDate(iso){if(!iso)return'';var d=new Date(iso);return d.getFullYear()+'.'+(d.getMonth()+1+'').padStart(2,'0')+'.'+(d.getDate()+'').padStart(2,'0');}
+function updateStats(){var w=items.filter(function(i){return !i.purchased;});document.getElementById('hI').textContent=w.length;var n=new Date();var tm=n.getFullYear()+'-'+(n.getMonth()+1+'').padStart(2,'0');var ms=items.filter(function(i){return i.purchased&&i.purchasedAt&&i.purchasedAt.startsWith(tm);}).reduce(function(s,i){return s+(i.price||0);},0);document.getElementById('hM').textContent='₩'+fm(ms);}
+function toast(msg,err){var t=document.getElementById('toast');t.textContent=msg;t.style.borderColor=err?'#9C3A2E':'#D4AF78';t.classList.add('on');setTimeout(function(){t.classList.remove('on');},2800);}
+</script>
+</body>
+</html>

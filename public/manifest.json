@@ -1,0 +1,39 @@
+{
+  "name": "CLOSET — 나의 패션 다이어리",
+  "short_name": "CLOSET",
+  "description": "장바구니 캡처로 위시리스트 관리, 취향 분석, 지출 통계까지",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0C0B09",
+  "theme_color": "#C9A96E",
+  "orientation": "portrait-primary",
+  "lang": "ko",
+  "categories": ["lifestyle", "shopping"],
+  "icons": [
+    { "src": "icons/icon-72.png",  "sizes": "72x72",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-96.png",  "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "위시리스트",
+      "short_name": "위시",
+      "description": "나의 위시리스트 보기",
+      "url": "/index.html#wishlist",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "스타일 찾기",
+      "short_name": "찾기",
+      "description": "비슷한 스타일 검색",
+      "url": "/index.html#finder",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ]
+}
