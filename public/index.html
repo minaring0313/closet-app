@@ -182,10 +182,11 @@ body{font-family:'Jost',sans-serif;font-weight:300;font-size:16px;background:#F7
 .al-status{font-size:10px;color:#A09890;margin-bottom:12px;}
 .sheet-bg{display:none;position:fixed;inset:0;background:rgba(26,23,20,0.4);z-index:400;align-items:flex-end;justify-content:center;overscroll-behavior:none;}
 .sheet-bg.on{display:flex;}
-.sheet{background:#F7F3EC;width:100%;max-width:600px;padding:0 20px 0;border-radius:16px 16px 0 0;height:90vh;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;animation:sheetUp 0.35s ease both;padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));}
+.sheet{background:#F7F3EC;width:100%;max-width:600px;padding:0;border-radius:16px 16px 0 0;height:90vh;display:flex;flex-direction:column;animation:sheetUp 0.35s ease both;}
 @keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
-.sh-pull{width:32px;height:4px;background:#E3DDD3;border-radius:2px;margin:12px auto 18px;}
-.sh-title{font-family:'EB Garamond',serif;font-size:22px;font-style:italic;margin-bottom:20px;}
+.sh-pull{width:32px;height:4px;background:#E3DDD3;border-radius:2px;margin:12px auto 0;flex-shrink:0;}
+.sh-title{font-family:'EB Garamond',serif;font-size:22px;font-style:italic;padding:14px 20px 8px;flex-shrink:0;margin:0;}
+.sh-body{flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:8px 20px calc(50px + env(safe-area-inset-bottom,0px));}
 .fg{margin-bottom:13px;}
 .fl{display:block;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#A09890;margin-bottom:5px;}
 .fi{width:100%;padding:10px 11px;background:white;border:1px solid #E3DDD3;color:#1A1714;font-family:'Jost',sans-serif;font-size:14px;}
@@ -213,6 +214,11 @@ textarea.fi{min-height:60px;resize:none;}
       <div class="up-sub">AI가 브랜드·상품명·가격을 자동으로 추출해요<br>담은 날짜가 기록돼요</div>
       <label for="fileInput" class="file-label">이미지 선택</label>
       <input type="file" id="fileInput" accept="image/*" multiple style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;">
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button onclick="exportData()" style="flex:1;padding:10px;border:1px solid #E3DDD3;background:white;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:1px;color:#A09890;cursor:pointer;touch-action:manipulation;">💾 백업 저장</button>
+      <label for="importFile" style="flex:1;padding:10px;border:1px solid #E3DDD3;background:white;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:1px;color:#A09890;cursor:pointer;text-align:center;display:block;">📂 백업 불러오기</label>
+      <input type="file" id="importFile" accept=".json" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;">
     </div>
     <div class="analyzing" id="analyzing"><div class="spin"></div><span>AI 분석 중...</span></div>
     <div class="filters">
@@ -309,16 +315,18 @@ textarea.fi{min-height:60px;resize:none;}
   <div class="sheet">
     <div class="sh-pull"></div>
     <div class="sh-title">아이템 편집</div>
-    <div class="fg"><label class="fl">브랜드</label><input class="fi" id="eBrand"></div>
-    <div class="fg"><label class="fl">상품명</label><input class="fi" id="eName"></div>
-    <div class="fg"><label class="fl">가격</label><input class="fi" id="ePrice" type="number"></div>
-    <div class="fg"><label class="fl">원가</label><input class="fi" id="eOrig" type="number"></div>
-    <div class="fg"><label class="fl">카테고리</label><input class="fi" id="eCat"></div>
-    <div class="fg"><label class="fl">링크</label><input class="fi" id="eLink" type="url"></div>
-    <div class="fg"><label class="fl">메모</label><textarea class="fi" id="eMemo"></textarea></div>
-    <div class="sh-btns">
-      <button class="sh-ok" onclick="saveItem()">저장하기</button>
-      <button class="sh-cancel" onclick="closeSheet()">취소</button>
+    <div class="sh-body">
+      <div class="fg"><label class="fl">브랜드</label><input class="fi" id="eBrand"></div>
+      <div class="fg"><label class="fl">상품명</label><input class="fi" id="eName"></div>
+      <div class="fg"><label class="fl">가격</label><input class="fi" id="ePrice" type="number"></div>
+      <div class="fg"><label class="fl">원가</label><input class="fi" id="eOrig" type="number"></div>
+      <div class="fg"><label class="fl">카테고리</label><input class="fi" id="eCat"></div>
+      <div class="fg"><label class="fl">링크</label><input class="fi" id="eLink" type="url"></div>
+      <div class="fg"><label class="fl">메모</label><textarea class="fi" id="eMemo"></textarea></div>
+      <div class="sh-btns">
+        <button class="sh-ok" onclick="saveItem()">저장하기</button>
+        <button class="sh-cancel" onclick="closeSheet()">취소</button>
+      </div>
     </div>
   </div>
 </div>
@@ -326,7 +334,9 @@ textarea.fi{min-height:60px;resize:none;}
   <div class="sheet">
     <div class="sh-pull"></div>
     <div class="sh-title" id="dayTitle">구매 내역</div>
-    <div class="day-list" id="dayList"></div>
+    <div class="sh-body">
+      <div class="day-list" id="dayList"></div>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -593,6 +603,34 @@ function toggleBuy(id){var it=items.find(function(i){return i.id==id;});if(!it)r
 function delItem(id){if(!confirm('삭제할까요?'))return;items=items.filter(function(i){return i.id!=id;});save();renderWish();toast('삭제됐어요');}
 
 function save(){localStorage.setItem('closet_v5',JSON.stringify(items));}
+
+function exportData(){
+  var json=JSON.stringify(items,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='closet_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('백업 파일이 저장됐어요!');
+}
+
+document.getElementById('importFile').addEventListener('change',function(e){
+  var file=e.target.files[0]; if(!file)return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    try{
+      var data=JSON.parse(ev.target.result);
+      if(!Array.isArray(data))throw new Error();
+      items=data;
+      save(); renderWish(); updateStats();
+      toast('백업을 불러왔어요! '+data.length+'개 아이템');
+    }catch(err){toast('파일이 올바르지 않아요',true);}
+  };
+  r.readAsText(file);
+  e.target.value='';
+});
 function fm(n){return(n||0).toLocaleString();}
 function dSince(iso){if(!iso)return 0;return Math.floor((Date.now()-new Date(iso))/86400000);}
 function fmtDate(iso){if(!iso)return'';var d=new Date(iso);return d.getFullYear()+'.'+(d.getMonth()+1+'').padStart(2,'0')+'.'+(d.getDate()+'').padStart(2,'0');}
